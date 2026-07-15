@@ -9,6 +9,7 @@ dependencies = [
     "numpy>=2.5.0",
     "piper-tts>=1.4.2",
     "pynput>=1.8.2",
+    "pyttsx3>=2.99",
     "scipy>=1.18.0",
     "sounddevice>=0.5.5",
 ]

@@ -3,8 +3,8 @@ import sounddevice as sounddevice
 import numpy as np
 from scipy.io.wavfile import write
 import wave
-from piper import PiperVoice
-
+from piper import PiperVoice, SynthesisConfig
+import pyttsx3
 
 def main():
 
@@ -47,9 +47,25 @@ def main():
 
     print("[%.2fs -> %.2fs]" % (segment.start, segment.end), texto)
 
-    voice = PiperVoice.load("pt_BR-faber-medium.onnx")
-    with wave.open("piper.wav", "wb") as wav_file:
-        voice.synthesize_wav(texto, wav_file)
+    engine = pyttsx3.init()
+
+    # 1. Ajustar a velocidade (Robôs falam de forma mais pausada ou muito rápida)
+    # O padrão é geralmente 200. Abaixar para 140 deixa um ritmo bem robótico.
+    engine.setProperty('rate', 140)
+
+    # 2. Configurar o idioma para Português do Brasil (pt-BR)
+    voices = engine.getProperty('voices')
+    assert isinstance(voices, list)
+    for voice in voices:
+        # Procura uma voz que tenha "PT-BR" ou "Brazil" no ID/nome
+        if "pt_br" in voice.id.lower() or "brazil" in voice.id.lower() or "portuguese" in voice.id.lower():
+            engine.setProperty('voice', voice.id)
+            break
+
+    # Se quiser apenas ouvir o robô falar na hora:
+    engine.say(texto)
+    engine.runAndWait()
+
 
 if __name__ == "__main__":
     main()
