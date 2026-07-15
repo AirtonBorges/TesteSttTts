@@ -2,6 +2,8 @@ from faster_whisper import WhisperModel
 import sounddevice as sounddevice
 import numpy as np
 from scipy.io.wavfile import write
+import wave
+from piper import PiperVoice
 
 
 def main():
@@ -38,9 +40,16 @@ def main():
         % (info.language, info.language_probability)
     )
 
+    texto = ""
     # Mostra o que voltou do modelo
     for segment in segments:
-        print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+        texto += ("%s" % (segment.text))
+
+    print("[%.2fs -> %.2fs]" % (segment.start, segment.end), texto)
+
+    voice = PiperVoice.load("pt_BR-faber-medium.onnx")
+    with wave.open("piper.wav", "wb") as wav_file:
+        voice.synthesize_wav(texto, wav_file)
 
 if __name__ == "__main__":
     main()
