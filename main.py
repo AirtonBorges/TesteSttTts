@@ -19,8 +19,6 @@ def main():
 
     int16_array = (myrecording * 32767).astype(np.int16)
 
-    write("recorded_audio.wav", frequecy, int16_array)
-    print("Áudio salvo em recorded_audio.wav")
     print("Saved to recorded_audio.mp3")
 
     # Inicaliza o modelo
@@ -48,8 +46,15 @@ def main():
     print("[%.2fs -> %.2fs]" % (segment.start, segment.end), texto)
 
     voice = PiperVoice.load("pt_BR-faber-medium.onnx")
-    with wave.open("piper.wav", "wb") as wav_file:
-        voice.synthesize_wav(texto, wav_file)
+    
+    audio_chunks = []
+    for chunk in voice.synthesize(texto):
+        audio_chunks.append(chunk.audio_int16_bytes)
+
+    audio_bytes = b"".join(audio_chunks)
+    audio_array = np.frombuffer(audio_bytes, dtype=np.int16)
+    sounddevice.play(audio_array, samplerate=voice.config.sample_rate)
+    sounddevice.wait()
 
 if __name__ == "__main__":
     main()
